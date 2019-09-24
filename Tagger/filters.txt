@@ -1,0 +1,8 @@
+jpg
+jpeg
+tga
+tif
+tiff
+png
+bmp
+gif
