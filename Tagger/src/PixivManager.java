@@ -108,7 +108,7 @@ public class PixivManager {
 								tagSubmitted=true;
 							}*/
 							if (tagSubmitted) {
-								if (imageTag.tag_whitelist.size()==0 || imageTag.tag_whitelist.containsKey(insertedTag)) {
+								if (imageTag.tag_whitelist.size()==0 || imageTag.tag_whitelist.containsKey(insertedTag.toLowerCase())) {
 									if (imageTag.taglist.containsKey(s)) {
 										List<String> tags = imageTag.taglist.get(s);
 										tags.add(insertedTag);

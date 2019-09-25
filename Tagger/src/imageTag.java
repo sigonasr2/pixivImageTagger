@@ -56,11 +56,11 @@ public class imageTag {
 				try {
 					s = br.readLine();
 					while (s!=null) {
-						String newtag = s.trim();
+						String newtag = s.trim().toLowerCase();
 						tag_whitelist.put(newtag,true);
 						System.out.println("Read in whitelisted tag: "+newtag);
 						s=br.readLine();
-					}
+					} 
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
