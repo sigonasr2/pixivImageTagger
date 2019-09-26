@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.ImageWriteException;
 import org.apache.commons.imaging.Imaging;
@@ -20,6 +22,7 @@ import org.apache.commons.imaging.formats.tiff.write.TiffOutputSet;
 
 public class Tagger {
 	public Tagger(File imagetoTag,List<String> tags) throws ImageReadException, IOException {		
+		System.out.println("File: "+imagetoTag.getAbsolutePath()+", "+tags);
 		StringBuilder sb = new StringBuilder();
 		if (tags!=null) {
 			for (String tag : tags) {
@@ -29,14 +32,11 @@ public class Tagger {
 				sb.append(tag);
 			}
 		
-			Process tool = Runtime.getRuntime().exec("tool.exe -exif:XPKeywords=\""+sb.toString()+"\" "+imagetoTag.getAbsolutePath()+" -overwrite_original_in_place -P");
-			
-			BufferedReader stdInput = new BufferedReader(new 
-				     InputStreamReader(tool.getInputStream()));
-			String s = null;
-			while ((s = stdInput.readLine()) != null) {
-			    System.out.println("Tagging "+imagetoTag.getName()+":"+s);
-			}
+			//Process tool = Runtime.getRuntime().exec("tool.exe -exif:XPKeywords=\""+sb.toString()+"\" "+imagetoTag.getAbsolutePath()+" -overwrite_original_in_place -P");
+			String command = "tool.exe -exif:XPKeywords=\""+sb.toString()+"\" "+imagetoTag.getAbsolutePath()+" -overwrite_original_in_place -P";
+			CommandLine cmdLine = CommandLine.parse(command);
+			DefaultExecutor executor = new DefaultExecutor();
+			int exitValue = executor.execute(cmdLine);
 		}
 	}
 }

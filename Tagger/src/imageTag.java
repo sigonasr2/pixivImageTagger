@@ -18,6 +18,10 @@ import java.util.TreeMap;
 
 import javax.swing.JFileChooser;
 
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.io.FileUtils;
+
 public class imageTag {
 	public static Filters filters;
 	public static HashMap<String,Boolean> tag_whitelist = new HashMap<String,Boolean>();
@@ -72,19 +76,36 @@ public class imageTag {
 
 	private static void ExtractExifTool() {
 		InputStream tool = imageTag.class.getResourceAsStream("exiftool.exe");
-		File f = new File("tool.exe");
+		File f = new File("tool.exe");/*
+		if (!f.exists()) {
+			try {
+				byte[] buffer = new byte[tool.available()];
+				tool.read(buffer);
+			    OutputStream outStream = new FileOutputStream(f);
+			    outStream.write(buffer);
+			    outStream.close();
+			    tool.close();
+			    //f.deleteOnExit(); 
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}*/
+		 try {
+			FileUtils.copyInputStreamToFile(tool,f);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		
+		//Run a test of it.
+		System.out.println("Test run of tool to verify it is working...");
+		String command = "tool.exe";
+		CommandLine cmdLine = CommandLine.parse(command);
+		DefaultExecutor executor = new DefaultExecutor();
 		try {
-			byte[] buffer = new byte[tool.available()];
-			tool.read(buffer);
-		    OutputStream outStream = new FileOutputStream(f);
-		    outStream.write(buffer);
-		    outStream.close();
-		    tool.close();
-		    f.deleteOnExit();
+			int exitValue = executor.execute(cmdLine);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
 }
 
