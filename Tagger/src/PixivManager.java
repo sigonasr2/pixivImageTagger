@@ -88,7 +88,7 @@ public class PixivManager {
 									ENTag = translationObj.getString("en");
 								}
 							} else
-							if (tag.has("tag") && /*romaji.length()==0 &&*/ !tag.getString("tag").matches(".*\\p{InHiragana}.*")) {
+							if (tag.has("tag") && /*romaji.length()==0 &&*/ !tag.getString("tag").matches(".*[ぁ-んァ-ン一-龯]")) {
 								hasEnglishTag=true;
 								ENTag = tag.getString("tag");
 							}
