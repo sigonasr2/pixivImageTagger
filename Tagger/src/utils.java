@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -256,7 +257,7 @@ public class utils {
 		  return lastSlashpos;
 	  }
 	  
-	  public static void downloadFileFromUrl(String url, String file) throws IOException, JSONException {
+	  public static void downloadFileFromUrl(String url, String file) throws IOException, JSONException, FileNotFoundException {
 		  String temp = url.substring(0,LastSlash(url));
 		  String temp2 = url.substring(LastSlash(url));
 		  
@@ -301,11 +302,7 @@ public class utils {
 		      return json;
 	  }
 	  
-	  /*public static void logToFile(String message, String filename) {
-		 logToFile(message,filename,false);  
-	  }*/
-	  
-	  /*public static void logToFile(String message, String filename, boolean outputToChatLog) {
+	  public static void logToFile(String message, String filename) {
 		  File file = new File(filename);
 			try {
 
@@ -322,10 +319,7 @@ public class utils {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			if (outputToChatLog && sigIRC.chatlogmodule_enabled) {
-				ChatLogMessage.importMessages(message);
-			}
-		}*/
+		}
 	  
 	  public static void writetoFile(String[] data, String filename) {
 		  File file = new File(filename);
