@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -267,10 +268,14 @@ public class utils {
 		    //connection.setRequestMethod("GET");
 		    connection.setRequestProperty("Content-Type", "application/json");
 		    connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-		  ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
-		  FileOutputStream fos = new FileOutputStream(file);
-		  fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-		  fos.close();
+		    try {
+			  ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
+			  FileOutputStream fos = new FileOutputStream(file);
+			  fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+			  fos.close();
+		    } catch (ConnectException e) {
+		    	System.out.println("Failed to connect, moving on...");
+		    }
 	  }
 
 	  public static JSONArray readJsonArrayFromUrl(String url, String file, boolean writeToFile) throws IOException, JSONException {

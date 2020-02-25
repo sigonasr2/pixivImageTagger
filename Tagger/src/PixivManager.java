@@ -37,7 +37,7 @@ public class PixivManager {
 			bwOutput = new BufferedWriter(fwOutput);
 			
 			for (String s : imageTag.pixiv_image_list) {
-				String url = "https://www.pixiv.net/member_illust.php?mode=medium&illust_id="+s;
+				String url = "https://www.pixiv.net/en/artworks/"+s;
 				try {
 					if (!new File("downloadedData/temp"+s+".html").exists()) {
 						System.out.println("Starting download of "+url+" ...");
@@ -45,7 +45,8 @@ public class PixivManager {
 						String[] data = utils.readFromFile("downloadedData/temp"+s+".html");
 						int scriptEndLine = 0;
 						while (scriptEndLine<data.length) {
-							if (data[scriptEndLine].contains("return Object.freeze(arg)")) {
+							if (data[scriptEndLine].contains("<meta name=\"preload-data\" id=\"meta-preload-data\" content='")) {
+								System.out.println("Found JSON Target line at line "+scriptEndLine+". :: "+data[scriptEndLine] );
 								break;
 							}
 							scriptEndLine++;
@@ -60,9 +61,12 @@ public class PixivManager {
 						try {
 							fw = new FileWriter(finaldata);
 							BufferedWriter bw = new BufferedWriter(fw);
-							int cutpos = data[scriptEndLine+1].indexOf("})(")+3;
-							if (cutpos<data[scriptEndLine+1].length()) {
-								bw.write(data[scriptEndLine+1].substring(cutpos,data[scriptEndLine+1].indexOf(");</script>")));
+							System.out.println(data[scriptEndLine]);
+							int cutpos = data[scriptEndLine].indexOf("<meta name=\"preload-data\" id=\"meta-preload-data\" content='")+58;
+							System.out.println(data[scriptEndLine].length()+"///"+data[scriptEndLine].indexOf("}}}'>")+"///"+cutpos);
+							if (cutpos<data[scriptEndLine].length()) {
+								bw.write(data[scriptEndLine].substring(cutpos,data[scriptEndLine].indexOf("}}}'>")+3));
+								System.out.println(data[scriptEndLine].substring(cutpos,data[scriptEndLine].indexOf("}}}'>")+3));
 							}
 							bw.close();
 							fw.close();
@@ -72,7 +76,7 @@ public class PixivManager {
 						JSONObject jsonData = utils.readJsonFromFile("finaltemp");
 						//System.out.println(Arrays.deepToString(JSONObject.getNames(jsonData.getJSONObject("preload"))));
 						//System.out.println(Arrays.deepToString(JSONObject.getNames(jsonData.getJSONObject("preload").getJSONObject("illust"))));
-						JSONArray tagsArray = jsonData.getJSONObject("preload").getJSONObject("illust").getJSONObject(s).getJSONObject("tags").getJSONArray("tags");
+						JSONArray tagsArray = jsonData.getJSONObject("illust").getJSONObject(s).getJSONObject("tags").getJSONArray("tags");
 						for (int i=0;i<tagsArray.length();i++) {
 							boolean hasEnglishTag=false;
 							JSONObject tag = tagsArray.getJSONObject(i);
