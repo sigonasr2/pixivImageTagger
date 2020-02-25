@@ -26,6 +26,11 @@ public class Tagger {
 		StringBuilder sb = new StringBuilder();
 		if (tags!=null) {
 			for (String tag : tags) {
+					if (imageTag.subtaglist.containsKey(tag)) { 
+						List<String> subtag = imageTag.subtaglist.get(tag);
+						/* info needed- subtags and
+						 *  action- look up the value for the subtag */
+					}
 				if (sb.length()!=0) {
 					sb.append("; ");
 				}

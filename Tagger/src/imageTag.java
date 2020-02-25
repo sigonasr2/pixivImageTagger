@@ -29,6 +29,7 @@ public class imageTag {
 	public static List<File> pixiv_rawimage_list = new ArrayList<File>();
 	public static HashMap<String,List<String>> taglist = new HashMap<String,List<String>>();
 	public static Map<String,Integer> tagCounter = new TreeMap<String,Integer>();
+	public static HashMap<String,List<String>> subtaglist = new HashMap<String,List<String>>();
 	
 	public static void main(String[] args) {
 		
@@ -61,10 +62,32 @@ public class imageTag {
 					s = br.readLine();
 					while (s!=null) {
 						String newtag = s.trim().toLowerCase();
-						tag_whitelist.put(newtag,true);
-						System.out.println("Read in whitelisted tag: "+newtag);
+						String[] combtag;
+						List<String> listofsubs = new ArrayList<String>();
+						if (s.contains(": ")); {
+							combtag = s.split(": ");
+								for (int i=1;i<combtag.length; i++) {
+									tag_whitelist.put(combtag[i].trim().toLowerCase(),true);
+									System.out.println("Read in whitelisted tag: "+combtag[i]);
+									subtaglist.put(combtag[i],listofsubs);
+									}
+							tag_whitelist.put(combtag[0].trim().toLowerCase(),true);
+							System.out.println("Read in whitelisted tag: "+combtag[0]);
+							listofsubs.add(combtag[0]);
+							}
+						/* the first word is read and will commit to the change while other
+						 *  tags in colons will be read but default to the first for committing */
 						s=br.readLine();
-					} 
+					}
+					System.out.println("SUBTAG LIST:");
+                    for (String ss : subtaglist.keySet()) {
+                      List<String> subtags = subtaglist.get(ss);
+                        System.out.println(" "+ss+": ");
+                      for (String sss : subtags) {
+                        System.out.println("    -"+sss);
+                      }
+                    }
+                    System.out.println("============");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
