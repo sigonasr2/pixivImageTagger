@@ -10,7 +10,7 @@ These are obtained when saving the image directly in pixiv.
 
 The Image Tagger crawls the site for the data and finds English tags for the image, then applies them based on a Whitelist.
 
-#How to use pixivImageTagger
+# How to use pixivImageTagger
 Make sure all your images you want to tag are in the same directory. Then start by running Tagger.jar. A folder selection window pops up. Select the directory with all the Pixiv images inside.
 
 Once you click the **Open** button, the program will retrieve all tag information for the images. Once it is done, you will get three files in the same directory that you ran Tagger.jar.
