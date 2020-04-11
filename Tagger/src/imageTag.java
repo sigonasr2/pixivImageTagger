@@ -28,6 +28,7 @@ public class imageTag {
 	public static List<String> pixiv_image_list = new ArrayList<String>();
 	public static List<File> pixiv_rawimage_list = new ArrayList<File>();
 	public static HashMap<String,List<String>> taglist = new HashMap<String,List<String>>();
+	public static HashMap<String,String> subtaglist = new HashMap<String,String>();
 	public static Map<String,Integer> tagCounter = new TreeMap<String,Integer>();
 	
 	public static void main(String[] args) {
@@ -60,10 +61,23 @@ public class imageTag {
 				try {
 					s = br.readLine();
 					while (s!=null) {
-						String newtag = s.trim().toLowerCase();
-						tag_whitelist.put(newtag,true);
-						System.out.println("Read in whitelisted tag: "+newtag);
-						s=br.readLine();
+						String[] split = s.split(":");
+						if (split.length>0) {
+							String newtag = split[0].trim().toLowerCase();
+							tag_whitelist.put(newtag,true);
+							System.out.println("Read in whitelisted tag: "+newtag);
+							for (int i=1;i<split.length;i++) {
+								String subtag = split[i].trim().toLowerCase();
+								subtaglist.put(subtag, newtag);
+								System.out.println(" Subtag: "+subtag);
+							}
+							s=br.readLine();
+						} else {
+							String newtag = s.trim().toLowerCase();
+							tag_whitelist.put(newtag,true);
+							System.out.println("Read in whitelisted tag: "+newtag);
+							s=br.readLine();
+						}
 					} 
 				} catch (IOException e) {
 					e.printStackTrace();

@@ -33,8 +33,9 @@ public class PixivManager {
 		skippedItems.delete();
 		folder.mkdirs();
 		File outputTest = new File("TAG_DATA.txt");
-		FileWriter fwOutput;
-		BufferedWriter bwOutput;
+		outputTest.delete();
+		FileWriter fwOutput,fwOutput2;
+		BufferedWriter bwOutput,bwOutput2;
 		try {
 			fwOutput = new FileWriter(outputTest,true);
 			bwOutput = new BufferedWriter(fwOutput);
@@ -96,7 +97,7 @@ public class PixivManager {
 										ENTag = translationObj.getString("en");
 									}
 								} else
-								if (tag.has("tag") && /*romaji.length()==0 &&*/ !tag.getString("tag").matches(".*[ぁ-んァ-ン一-龯]")) {
+								if (tag.has("tag") /*&& romaji.length()==0 */&& !tag.getString("tag").matches(".*[ぁ-んァ-ン一-龯]")) {
 									hasEnglishTag=true;
 									ENTag = tag.getString("tag");
 								}
@@ -115,8 +116,12 @@ public class PixivManager {
 									insertedTag = romaji;
 									tagSubmitted=true;
 								}*/
+								
+								//insertedTag is the tag that will be used for the image.
+								insertedTag = ConvertTag(insertedTag.trim().toLowerCase());
+								
 								if (tagSubmitted) {
-									if (imageTag.tag_whitelist.size()==0 || imageTag.tag_whitelist.containsKey(insertedTag.toLowerCase())) {
+									if (imageTag.tag_whitelist.size()==0 || imageTag.tag_whitelist.containsKey(insertedTag.trim().toLowerCase())) {
 										if (imageTag.taglist.containsKey(s)) {
 											List<String> tags = imageTag.taglist.get(s);
 											tags.add(insertedTag);
@@ -172,19 +177,26 @@ public class PixivManager {
 		Set s = sorted.entrySet();
 		Iterator i = s.iterator();
 		File tagFile = new File("SORTED_TAGS.txt");
-		FileWriter fw;
+		File tagFile2 = new File("RAW_TAGS.txt");
+		FileWriter fw,fw2;
 		try {
 			fw = new FileWriter(tagFile);
+			fw2 = new FileWriter(tagFile2);
 			BufferedWriter bw = new BufferedWriter(fw);
+			BufferedWriter bw2 = new BufferedWriter(fw2);
 			while (i.hasNext()) {
 				Map.Entry m  = (Map.Entry)i.next();
 				String key = (String)m.getKey();
 				Integer value = (Integer)m.getValue();
 				bw.write(key+" - "+value);
 				bw.newLine();
+				bw2.write(key);
+				bw2.newLine();
 			}
 			bw.close();
+			bw2.close();
 			fw.close();
+			fw2.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -207,6 +219,15 @@ public class PixivManager {
 	}
 	
 	
+	private String ConvertTag(String insertedTag) {
+		if (imageTag.subtaglist.containsKey(insertedTag.trim().toLowerCase())) {
+			System.out.println("  Converting subtag "+insertedTag.trim().toLowerCase()+"->"+imageTag.subtaglist.get(insertedTag.trim().toLowerCase()));
+			return imageTag.subtaglist.get(insertedTag.trim().toLowerCase());
+		}
+		return insertedTag;
+	}
+
+
 	public static <K, V extends Comparable<V>> Map<K, V> 
     sortByValues(final Map<K, V> map) {
     Comparator<K> valueComparator = 
