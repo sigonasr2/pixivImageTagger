@@ -16,7 +16,9 @@ Make sure all your images you want to tag are in the same directory. Then start 
 Once you click the **Open** button, the program will retrieve all tag information for the images. Once it is done, you will get three files in the same directory that you ran Tagger.jar.
 
   -**TAG_DATA.txt** - Shows what tags each image, by Pixiv Image ID, each one contains
+  
   -**SORTED_TAGS.txt** - Shows how many images have the same tags in common, sorted from highest to lowest.
+  
   -**RAW_TAGS.txt** - A file containing every tag, without any additional data.
   
 Review these files to make an informed decision of which tags you want to use to sort the images by, then proceed to build a **whitelist.txt** file following the **whitelist_template.txt** file found in this repo, or by the following guidelines below:
