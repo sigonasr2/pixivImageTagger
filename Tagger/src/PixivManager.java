@@ -41,7 +41,7 @@ public class PixivManager {
 			bwOutput = new BufferedWriter(fwOutput);
 			
 			for (String s : imageTag.pixiv_image_list) {
-				String url = "https://www.pixiv.net/en/artworks/"+s;
+				String url = "https://api.proxycrawl.com/?token=ahDRaxo3KT2OOX2nQZQV9A&url=https://www.pixiv.net/en/artworks/"+s;
 				try {
 					if (!new File("downloadedData/temp"+s+".html").exists()) {
 						System.out.println("Starting download of "+url+" ...");
@@ -86,10 +86,10 @@ public class PixivManager {
 								boolean hasEnglishTag=false;
 								JSONObject tag = tagsArray.getJSONObject(i);
 								String ENTag="";
-								//String romaji="";
-								/*if (tag.has("romaji") && !tag.isNull("romaji")) {
+								String romaji="";
+								if (tag.has("romaji") && !tag.isNull("romaji")) {
 									romaji = tag.getString("romaji");
-								}*/
+								}
 								if (tag.has("translation")) {
 									JSONObject translationObj = tag.getJSONObject("translation");
 									if (translationObj.has("en")) {
@@ -111,11 +111,11 @@ public class PixivManager {
 								if (hasEnglishTag && ENTag.length()>0) {
 									insertedTag = ENTag;
 									tagSubmitted=true;
-								} /*else 
+								} else 
 								if (romaji.length()>0){
 									insertedTag = romaji;
 									tagSubmitted=true;
-								}*/
+								}
 								
 								//insertedTag is the tag that will be used for the image.
 								insertedTag = ConvertTag(insertedTag.trim().toLowerCase());
@@ -140,7 +140,7 @@ public class PixivManager {
 								}
 							}
 							String taglist = s+": <"+imageTag.taglist.get(s)+">";
-							System.out.println(taglist);
+							//System.out.println(taglist);
 							bwOutput.append(taglist);
 							bwOutput.newLine();
 							//jsonData.getJSONObject("preload").getJSONObject("illust").getJSONObject(s).getJSONObject("tags");
