@@ -99,7 +99,7 @@ public class PixivManager {
 											ENTag = translationObj.getString("en");
 										}
 									} else
-									if (tag.has("tag") /*&& romaji.length()==0 */&& !tag.getString("tag").matches(".*[ぁ-んァ-ン一-龯]")) {
+									if (tag.has("tag") /*&& romaji.length()==0 */&& !tag.getString("tag").matches("[ -~]")) {
 										hasEnglishTag=true;
 										ENTag = tag.getString("tag");
 									}
