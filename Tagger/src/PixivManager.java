@@ -60,96 +60,99 @@ public class PixivManager {
 								System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 								System.out.println("  IMAGE "+s+" FAILED TO PARSE CORRECTLY! Something is messed up about the file!!");
 								System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-							}
-							File finaldata = new File("finaltemp");
-							FileWriter fw;
-							try {
-								fw = new FileWriter(finaldata);
-								BufferedWriter bw = new BufferedWriter(fw);
-								System.out.println(data[scriptEndLine]);
-								int cutpos = data[scriptEndLine].indexOf("<meta name=\"preload-data\" id=\"meta-preload-data\" content='")+58;
-								System.out.println(data[scriptEndLine].length()+"///"+data[scriptEndLine].indexOf("}}}'>")+"///"+cutpos);
-								if (cutpos<data[scriptEndLine].length()) {
-									bw.write(data[scriptEndLine].substring(cutpos,data[scriptEndLine].indexOf("}}}'>")+3));
-									System.out.println(data[scriptEndLine].substring(cutpos,data[scriptEndLine].indexOf("}}}'>")+3));
+								System.out.println("Skipping image "+s+" because webpage cannot be found.");
+								utils.logToFile(s+"\n", "skippedItems.txt");
+							} else {
+								File finaldata = new File("finaltemp");
+								FileWriter fw;
+								try {
+									fw = new FileWriter(finaldata);
+									BufferedWriter bw = new BufferedWriter(fw);
+									System.out.println(data[scriptEndLine]);
+									int cutpos = data[scriptEndLine].indexOf("<meta name=\"preload-data\" id=\"meta-preload-data\" content='")+58;
+									System.out.println(data[scriptEndLine].length()+"///"+data[scriptEndLine].indexOf("}}}'>")+"///"+cutpos);
+									if (cutpos<data[scriptEndLine].length()) {
+										bw.write(data[scriptEndLine].substring(cutpos,data[scriptEndLine].indexOf("}}}'>")+3));
+										System.out.println(data[scriptEndLine].substring(cutpos,data[scriptEndLine].indexOf("}}}'>")+3));
+									}
+									bw.close();
+									fw.close();
+								} catch (IOException e) {
+									e.printStackTrace();
 								}
-								bw.close();
-								fw.close();
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-							JSONObject jsonData = utils.readJsonFromFile("finaltemp");
-							//System.out.println(Arrays.deepToString(JSONObject.getNames(jsonData.getJSONObject("preload"))));
-							//System.out.println(Arrays.deepToString(JSONObject.getNames(jsonData.getJSONObject("preload").getJSONObject("illust"))));
-							JSONArray tagsArray = jsonData.getJSONObject("illust").getJSONObject(s).getJSONObject("tags").getJSONArray("tags");
-							for (int i=0;i<tagsArray.length();i++) {
-								boolean hasEnglishTag=false;
-								JSONObject tag = tagsArray.getJSONObject(i);
-								String ENTag="";
-								String romaji="";
-								if (tag.has("romaji") && !tag.isNull("romaji")) {
-									romaji = tag.getString("romaji");
-								}
-								if (tag.has("translation")) {
-									JSONObject translationObj = tag.getJSONObject("translation");
-									if (translationObj.has("en")) {
+								JSONObject jsonData = utils.readJsonFromFile("finaltemp");
+								//System.out.println(Arrays.deepToString(JSONObject.getNames(jsonData.getJSONObject("preload"))));
+								//System.out.println(Arrays.deepToString(JSONObject.getNames(jsonData.getJSONObject("preload").getJSONObject("illust"))));
+								JSONArray tagsArray = jsonData.getJSONObject("illust").getJSONObject(s).getJSONObject("tags").getJSONArray("tags");
+								for (int i=0;i<tagsArray.length();i++) {
+									boolean hasEnglishTag=false;
+									JSONObject tag = tagsArray.getJSONObject(i);
+									String ENTag="";
+									String romaji="";
+									if (tag.has("romaji") && !tag.isNull("romaji")) {
+										romaji = tag.getString("romaji");
+									}
+									if (tag.has("translation")) {
+										JSONObject translationObj = tag.getJSONObject("translation");
+										if (translationObj.has("en")) {
+											hasEnglishTag=true;
+											ENTag = translationObj.getString("en");
+										}
+									} else
+									if (tag.has("tag") /*&& romaji.length()==0 */&& !tag.getString("tag").matches(".*[ぁ-んァ-ン一-龯]")) {
 										hasEnglishTag=true;
-										ENTag = translationObj.getString("en");
+										ENTag = tag.getString("tag");
 									}
-								} else
-								if (tag.has("tag") /*&& romaji.length()==0 */&& !tag.getString("tag").matches(".*[ぁ-んァ-ン一-龯]")) {
-									hasEnglishTag=true;
-									ENTag = tag.getString("tag");
-								}
-								
-								if (ENTag.replaceAll("\\?", "").trim().length()==0) {
-									ENTag="";
-									hasEnglishTag=false;
-								}
-								boolean tagSubmitted=false;
-								String insertedTag="";
-								if (hasEnglishTag && ENTag.length()>0) {
-									insertedTag = ENTag;
-									tagSubmitted=true;
-								} else 
-								if (romaji.length()>0){
-									insertedTag = romaji;
-									tagSubmitted=true;
-								}
-								
-								//insertedTag is the tag that will be used for the image.
-								insertedTag = ConvertTag(insertedTag.trim().toLowerCase());
-								
-								if (tagSubmitted) {
-									if (imageTag.tag_whitelist.size()==0 || imageTag.tag_whitelist.containsKey(insertedTag.trim().toLowerCase())) {
-										if (imageTag.taglist.containsKey(s)) {
-											List<String> tags = imageTag.taglist.get(s);
-											tags.add(insertedTag);
-											imageTag.taglist.put(s, tags);
-										} else {
-											List<String> tags = new ArrayList<String>();
-											tags.add(insertedTag);
-											imageTag.taglist.put(s,tags);
-										}
-										if (imageTag.tagCounter.containsKey(insertedTag)) {
-											imageTag.tagCounter.put(insertedTag,imageTag.tagCounter.get(insertedTag)+1);
-										} else {
-											imageTag.tagCounter.put(insertedTag,1);
+									
+									if (ENTag.replaceAll("\\?", "").trim().length()==0) {
+										ENTag="";
+										hasEnglishTag=false;
+									}
+									boolean tagSubmitted=false;
+									String insertedTag="";
+									if (hasEnglishTag && ENTag.length()>0) {
+										insertedTag = ENTag;
+										tagSubmitted=true;
+									} else 
+									if (romaji.length()>0){
+										insertedTag = romaji;
+										tagSubmitted=true;
+									}
+									
+									//insertedTag is the tag that will be used for the image.
+									insertedTag = ConvertTag(insertedTag.trim().toLowerCase());
+									
+									if (tagSubmitted) {
+										if (imageTag.tag_whitelist.size()==0 || imageTag.tag_whitelist.containsKey(insertedTag.trim().toLowerCase())) {
+											if (imageTag.taglist.containsKey(s)) {
+												List<String> tags = imageTag.taglist.get(s);
+												tags.add(insertedTag);
+												imageTag.taglist.put(s, tags);
+											} else {
+												List<String> tags = new ArrayList<String>();
+												tags.add(insertedTag);
+												imageTag.taglist.put(s,tags);
+											}
+											if (imageTag.tagCounter.containsKey(insertedTag)) {
+												imageTag.tagCounter.put(insertedTag,imageTag.tagCounter.get(insertedTag)+1);
+											} else {
+												imageTag.tagCounter.put(insertedTag,1);
+											}
 										}
 									}
 								}
-							}
-							String taglist = s+": <"+imageTag.taglist.get(s)+">";
-							//System.out.println(taglist);
-							bwOutput.append(taglist);
-							bwOutput.newLine();
-							//jsonData.getJSONObject("preload").getJSONObject("illust").getJSONObject(s).getJSONObject("tags");
+								String taglist = s+": <"+imageTag.taglist.get(s)+">";
+								//System.out.println(taglist);
+								bwOutput.append(taglist);
+								bwOutput.newLine();
+								//jsonData.getJSONObject("preload").getJSONObject("illust").getJSONObject(s).getJSONObject("tags");
+							}/* else {
+								System.out.println("Skipping image "+s+" because webpage cannot be found.");
+								utils.logToFile(s+"\n", "skippedItems.txt");
+							}*/
 						} else {
-							System.out.println("Skipping image "+s+" because webpage cannot be found.");
-							utils.logToFile(s+"\n", "skippedItems.txt");
+							System.out.println("Skipping image "+s+" because it has already been processed.");
 						}
-					} else {
-						System.out.println("Skipping image "+s+" because it has already been processed.");
 					}
 				} catch (IOException e) {
 					if (e instanceof FileNotFoundException) {
