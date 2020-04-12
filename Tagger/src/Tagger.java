@@ -33,15 +33,20 @@ public class Tagger {
 			}
 		
 			//Process tool = Runtime.getRuntime().exec("tool.exe -exif:XPKeywords=\""+sb.toString()+"\" "+imagetoTag.getAbsolutePath()+" -overwrite_original_in_place -P");
-			String command = "tool.exe -exif:XPKeywords=\""+sb.toString()+"\" \""+imagetoTag.getAbsolutePath()+"\" -overwrite_original_in_place -P";
+			String command = "tool.exe -exif:all= -tagsfromfile @ -exif:all -unsafe -thumbnailimage -F  \""+imagetoTag.getAbsolutePath()+"\"";
 			CommandLine cmdLine = CommandLine.parse(command);
 			DefaultExecutor executor = new DefaultExecutor();
 			int exitValue = executor.execute(cmdLine);
+			command = "tool.exe -m -exif:XPKeywords=\""+sb.toString()+"\" \""+imagetoTag.getAbsolutePath()+"\" -overwrite_original_in_place -P";
+			cmdLine = CommandLine.parse(command);
+			executor = new DefaultExecutor();
+			exitValue = executor.execute(cmdLine);
 			try {
 				Thread.sleep(300);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			
 		}
 	}
 }
