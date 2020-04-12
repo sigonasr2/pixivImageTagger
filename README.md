@@ -40,9 +40,11 @@ Good uses of sub-tags are for things like the following:
  
  - Ahri:fox ears
  
+ - IMAS:the idolmaster- cinderella girls
+ 
 This provides consistent naming for related tags that are similar that you want renamed or representing the same tag. In those examples, all those different variations of League of Legends turn into just one tag called "*League of Legends*", all Touhou tags are renamed to "*Touhou Project*", and anything with fox ears becomes "*Ahri*".
 
-**NOTE:** If you have a tag with colons in it, convert the colons to dashes. All tags found by the tagger program with colons will automatically convert them to dashes!!!
+**NOTE:** If you have a tag with colons in it, like *the idolmaster: cinderella girls* convert the colons to dashes like I did in the example above. All tags found by the tagger program with colons will automatically convert them to dashes!!!
 
 These are all just basic examples.
 
