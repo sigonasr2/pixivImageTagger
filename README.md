@@ -48,3 +48,5 @@ These are all just basic examples.
 When running the program with a **whitelist.txt** file in the same directory as the jar, the program will proceed to apply all the re-tagging.
 
 This process can take some time on larger directories. It will close on its own when it's complete and run in the background. If you want something to indicate progress, then run it using a command prompt / Powershell window by opening up said window, dragging-and-dropping the file, then pressing enter to run it that way. You will get a more verbose output.
+
+After the process is complete, if there were any items skipped due to being obsolete / deleted / invalid, a file called skippedItems.txt is created and stored in the same directory.
