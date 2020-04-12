@@ -241,6 +241,8 @@ public class PixivManager {
 	
 	
 	private String ConvertTag(String insertedTag) {
+		insertedTag = insertedTag.replaceAll(":", "-");
+		
 		if (imageTag.subtaglist.containsKey(insertedTag.trim().toLowerCase())) {
 			System.out.println("  Converting subtag "+insertedTag.trim().toLowerCase()+"->"+imageTag.subtaglist.get(insertedTag.trim().toLowerCase()));
 			return imageTag.subtaglist.get(insertedTag.trim().toLowerCase());
