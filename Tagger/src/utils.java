@@ -232,7 +232,7 @@ public class utils {
 		    	System.out.println(s+": "+connection.getHeaderFields().get(s));
 		    }*/
 		    //connection.setRequestMethod("GET");
-		    connection.setRequestProperty("Content-Type", "application/json");
+		    connection.setRequestProperty("Content-Type", "text/html");
 		    connection.setRequestProperty("User-Agent", "Mozilla/5.0");
 		    int response = connection.getResponseCode();
 		    //System.out.println("Response: "+response);
@@ -267,8 +267,10 @@ public class utils {
 		    	System.out.println(s+": "+connection.getHeaderFields().get(s));
 		    }*/
 		    //connection.setRequestMethod("GET");
-		    connection.setRequestProperty("Content-Type", "application/json");
+		    //connection.setRequestProperty("Content-Type", "text/html");
 		    connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+		    //connection.setRequestProperty("Referer", "pixiv.net");
+		    HttpURLConnection.setFollowRedirects(true);
 		    try {
 			  ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
 			  FileOutputStream fos = new FileOutputStream(file);

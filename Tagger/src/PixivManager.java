@@ -40,8 +40,26 @@ public class PixivManager {
 			fwOutput = new FileWriter(outputTest,true);
 			bwOutput = new BufferedWriter(fwOutput);
 			
+			int imageCounter=0;
+			while (imageCounter<imageTag.pixiv_image_list.size()) {
+				StringBuilder downloadData = new StringBuilder();
+				for (int i=0;i<20;i++) {
+					if (imageCounter>=imageTag.pixiv_image_list.size()) {
+						break;
+					}
+					if (i!=0) {
+						downloadData.append(",");
+					}
+					downloadData.append(imageTag.pixiv_image_list.get(imageCounter));
+					imageCounter++;
+				}
+				System.out.println("Sending request to server to download "+downloadData.toString());
+				utils.downloadFileFromUrl("http://45.33.13.215/crawler/request.php?images="+downloadData.toString(), "temp_req.html");
+			}
+			
 			for (String s : imageTag.pixiv_image_list) {
-				String url = "https://api.proxycrawl.com/?token=ahDRaxo3KT2OOX2nQZQV9A&url=https://www.pixiv.net/en/artworks/"+s;
+				//String url = "https://api.proxycrawl.com/?token=ahDRaxo3KT2OOX2nQZQV9A&url=https://www.pixiv.net/en/artworks/"+s;
+				String url = "http://45.33.13.215/crawler/crawler/"+s+".html";
 				try {
 					if (!new File("downloadedData/temp"+s+".html").exists()) {
 						System.out.println("Starting download of "+url+" ...");
