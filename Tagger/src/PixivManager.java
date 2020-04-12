@@ -89,7 +89,7 @@ public class PixivManager {
 									JSONObject tag = tagsArray.getJSONObject(i);
 									String ENTag="";
 									String romaji="";
-									if (tag.has("romaji") && !tag.isNull("romaji")) {
+									if (tag.has("romaji")) {
 										romaji = tag.getString("romaji");
 									}
 									if (tag.has("translation")) {
@@ -99,7 +99,7 @@ public class PixivManager {
 											ENTag = translationObj.getString("en");
 										}
 									} else
-									if (tag.has("tag") /*&& romaji.length()==0 */&& !tag.getString("tag").matches("[ -~]")) {
+									if (tag.has("tag") /*&& romaji.length()==0 */&& tag.getString("tag").matches("[ -~]")) {
 										hasEnglishTag=true;
 										ENTag = tag.getString("tag");
 									}
