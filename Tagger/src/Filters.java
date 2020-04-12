@@ -8,7 +8,7 @@ import java.util.List;
 public class Filters {
 	List<String> filters = new ArrayList<String>();
 	public Filters() throws IOException {
-		File f = new File("filters.txt");
+		/*File f = new File("filters.txt");
 		FileReader fr = new FileReader(f);
 		BufferedReader br = new BufferedReader(fr);
 		String s = br.readLine();
@@ -19,6 +19,22 @@ public class Filters {
 			s = br.readLine();
 		}
 		br.close(); 
-		fr.close();
+		fr.close();*/
+		filters.add("jpg");
+		filters.add("jpeg");
+		filters.add("tga");
+		filters.add("tif");
+		filters.add("tiff");
+		filters.add("png");
+		filters.add("bmp");
+		filters.add("gif");
+		/*jpg
+		jpeg
+		tga
+		tif
+		tiff
+		png
+		bmp
+		gif*/
 	}
 }
