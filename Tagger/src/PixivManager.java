@@ -58,131 +58,27 @@ public class PixivManager {
 			}
 			
 			for (String s : imageTag.pixiv_image_list) {
-				//String url = "https://api.proxycrawl.com/?token=ahDRaxo3KT2OOX2nQZQV9A&url=https://www.pixiv.net/en/artworks/"+s;
-				String url = "http://45.33.13.215/crawler/crawler/"+s+".html";
-				try {
-					if (!new File("downloadedData/temp"+s+".html").exists()) {
-						System.out.println("Starting download of "+url+" ...");
-						utils.downloadFileFromUrl(url, "downloadedData/temp"+s+".html");
-						if (new File("downloadedData/temp"+s+".html").exists()) {
-							String[] data = utils.readFromFile("downloadedData/temp"+s+".html");
-							int scriptEndLine = 0;
-							while (scriptEndLine<data.length) {
-								if (data[scriptEndLine].contains("<meta name=\"preload-data\" id=\"meta-preload-data\" content='")) {
-									System.out.println("Found JSON Target line at line "+scriptEndLine+". :: "+data[scriptEndLine] );
-									break;
-								}
-								scriptEndLine++;
-							}
-							if (scriptEndLine==data.length) {
-								System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-								System.out.println("  IMAGE "+s+" FAILED TO PARSE CORRECTLY! Something is messed up about the file!!");
-								System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-								System.out.println("Skipping image "+s+" because webpage cannot be found.");
-								utils.logToFile(s+"\n", "skippedItems.txt");
-							} else {
-								File finaldata = new File("finaltemp");
-								FileWriter fw;
-								try {
-									fw = new FileWriter(finaldata);
-									BufferedWriter bw = new BufferedWriter(fw);
-									System.out.println(data[scriptEndLine]);
-									int cutpos = data[scriptEndLine].indexOf("<meta name=\"preload-data\" id=\"meta-preload-data\" content='")+58;
-									System.out.println(data[scriptEndLine].length()+"///"+data[scriptEndLine].indexOf("}}}'>")+"///"+cutpos);
-									if (cutpos<data[scriptEndLine].length()) {
-										bw.write(data[scriptEndLine].substring(cutpos,data[scriptEndLine].indexOf("}}}'>")+3));
-										System.out.println(data[scriptEndLine].substring(cutpos,data[scriptEndLine].indexOf("}}}'>")+3));
-									}
-									bw.close();
-									fw.close();
-								} catch (IOException e) {
-									e.printStackTrace();
-								}
-								JSONObject jsonData = utils.readJsonFromFile("finaltemp");
-								//System.out.println(Arrays.deepToString(JSONObject.getNames(jsonData.getJSONObject("preload"))));
-								//System.out.println(Arrays.deepToString(JSONObject.getNames(jsonData.getJSONObject("preload").getJSONObject("illust"))));
-								JSONArray tagsArray = jsonData.getJSONObject("illust").getJSONObject(s).getJSONObject("tags").getJSONArray("tags");
-								for (int i=0;i<tagsArray.length();i++) {
-									boolean hasEnglishTag=false;
-									JSONObject tag = tagsArray.getJSONObject(i);
-									String ENTag="";
-									String romaji="";
-									if (tag.has("romaji")) {
-										romaji = tag.getString("romaji");
-									}
-									if (tag.has("translation")) {
-										JSONObject translationObj = tag.getJSONObject("translation");
-										if (translationObj.has("en")) {
-											hasEnglishTag=true;
-											ENTag = translationObj.getString("en");
-										}
-									} else
-									if (tag.has("tag") /*&& romaji.length()==0 */&& tag.getString("tag").matches("[ -~]")) {
-										hasEnglishTag=true;
-										ENTag = tag.getString("tag");
-									}
-									
-									if (ENTag.replaceAll("\\?", "").trim().length()==0) {
-										ENTag="";
-										hasEnglishTag=false;
-									}
-									boolean tagSubmitted=false;
-									String insertedTag="";
-									if (hasEnglishTag && ENTag.length()>0) {
-										insertedTag = ENTag;
-										tagSubmitted=true;
-									} else 
-									if (romaji.length()>0){
-										insertedTag = romaji;
-										tagSubmitted=true;
-									}
-									
-									//insertedTag is the tag that will be used for the image.
-									insertedTag = ConvertTag(insertedTag.trim().toLowerCase());
-									
-									if (tagSubmitted) {
-										if (imageTag.tag_whitelist.size()==0 || imageTag.tag_whitelist.containsKey(insertedTag.trim().toLowerCase())) {
-											if (imageTag.taglist.containsKey(s)) {
-												List<String> tags = imageTag.taglist.get(s);
-												tags.add(insertedTag);
-												imageTag.taglist.put(s, tags);
-											} else {
-												List<String> tags = new ArrayList<String>();
-												tags.add(insertedTag);
-												imageTag.taglist.put(s,tags);
-											}
-											if (imageTag.tagCounter.containsKey(insertedTag)) {
-												imageTag.tagCounter.put(insertedTag,imageTag.tagCounter.get(insertedTag)+1);
-											} else {
-												imageTag.tagCounter.put(insertedTag,1);
-											}
-										}
-									}
-								}
-								String taglist = s+": <"+imageTag.taglist.get(s)+">";
-								//System.out.println(taglist);
-								bwOutput.append(taglist);
-								bwOutput.newLine();
-								//jsonData.getJSONObject("preload").getJSONObject("illust").getJSONObject(s).getJSONObject("tags");
-							}/* else {
-								System.out.println("Skipping image "+s+" because webpage cannot be found.");
-								utils.logToFile(s+"\n", "skippedItems.txt");
-							}*/
-						} else {
-							System.out.println("Skipping image "+s+" because it has already been processed.");
-						}
-					}
-				} catch (IOException e) {
-					if (e instanceof FileNotFoundException) {
-						System.out.println("Skipping image "+s+" because webpage cannot be found.");
-						utils.logToFile(s, "skippedItems.txt");
-					} else {
+				AttemptDownload(bwOutput, s, true);
+			}
+			
+			int retryAttempts=0;
+			final int MAXATTEMPTS = 3;
+			while (retryAttempts<MAXATTEMPTS) {
+				if (imageTag.pixiv_retry_list.size()>0) {
+					List<String> retryList = new ArrayList<String>();
+					retryList.addAll(imageTag.pixiv_retry_list);
+					imageTag.pixiv_retry_list.clear();
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
+					for (String s : imageTag.pixiv_retry_list) {
+						System.out.println(" Retry Attempt Number "+(retryAttempts+1)+"...");
+						AttemptDownload(bwOutput, s, (retryAttempts<MAXATTEMPTS));
+					}
 				}
-				/*org.apache.commons.io.FileUtils.copyURLToFile(new URL(
-						url
-						),temp);*/
+				retryAttempts++;
 			}
 			
 			/*for (String s : imageTag.taglist.keySet()) {
@@ -237,6 +133,139 @@ public class PixivManager {
 				//System.out.println("Tagged "+ss+" with "+tagString);
 			}
 		}
+	}
+
+
+	private void AttemptDownload(BufferedWriter bwOutput, String s, boolean addToRetryListOnFail) {
+		//String url = "https://api.proxycrawl.com/?token=ahDRaxo3KT2OOX2nQZQV9A&url=https://www.pixiv.net/en/artworks/"+s;
+		String url = "http://45.33.13.215/crawler/crawler/"+s+".html";
+		try {
+			if (!new File("downloadedData/temp"+s+".html").exists()) {
+				System.out.println("Starting download of "+url+" ...");
+				utils.downloadFileFromUrl(url, "downloadedData/temp"+s+".html");
+				if (new File("downloadedData/temp"+s+".html").exists()) {
+					String[] data = utils.readFromFile("downloadedData/temp"+s+".html");
+					int scriptEndLine = 0;
+					while (scriptEndLine<data.length) {
+						if (data[scriptEndLine].contains("<meta name=\"preload-data\" id=\"meta-preload-data\" content='")) {
+							System.out.println("Found JSON Target line at line "+scriptEndLine+". :: "+data[scriptEndLine] );
+							break;
+						}
+						scriptEndLine++;
+					}
+					if (scriptEndLine==data.length) {
+						System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+						System.out.println("  IMAGE "+s+" FAILED TO PARSE CORRECTLY! Something is messed up about the file!!");
+						System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+						System.out.println("Skipping image "+s+" because webpage cannot be found.");
+						utils.logToFile(s+"\n", "skippedItems.txt");
+					} else {
+						File finaldata = new File("finaltemp");
+						FileWriter fw;
+						try {
+							fw = new FileWriter(finaldata);
+							BufferedWriter bw = new BufferedWriter(fw);
+							System.out.println(data[scriptEndLine]);
+							int cutpos = data[scriptEndLine].indexOf("<meta name=\"preload-data\" id=\"meta-preload-data\" content='")+58;
+							System.out.println(data[scriptEndLine].length()+"///"+data[scriptEndLine].indexOf("}}}'>")+"///"+cutpos);
+							if (cutpos<data[scriptEndLine].length()) {
+								bw.write(data[scriptEndLine].substring(cutpos,data[scriptEndLine].indexOf("}}}'>")+3));
+								System.out.println(data[scriptEndLine].substring(cutpos,data[scriptEndLine].indexOf("}}}'>")+3));
+							}
+							bw.close();
+							fw.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						JSONObject jsonData = utils.readJsonFromFile("finaltemp");
+						//System.out.println(Arrays.deepToString(JSONObject.getNames(jsonData.getJSONObject("preload"))));
+						//System.out.println(Arrays.deepToString(JSONObject.getNames(jsonData.getJSONObject("preload").getJSONObject("illust"))));
+						JSONArray tagsArray = jsonData.getJSONObject("illust").getJSONObject(s).getJSONObject("tags").getJSONArray("tags");
+						for (int i=0;i<tagsArray.length();i++) {
+							boolean hasEnglishTag=false;
+							JSONObject tag = tagsArray.getJSONObject(i);
+							String ENTag="";
+							String romaji="";
+							if (tag.has("romaji")) {
+								romaji = tag.getString("romaji");
+							}
+							if (tag.has("translation")) {
+								JSONObject translationObj = tag.getJSONObject("translation");
+								if (translationObj.has("en")) {
+									hasEnglishTag=true;
+									ENTag = translationObj.getString("en");
+								}
+							} else
+							if (tag.has("tag") /*&& romaji.length()==0 */&& tag.getString("tag").matches("[ -~]")) {
+								hasEnglishTag=true;
+								ENTag = tag.getString("tag");
+							}
+							
+							if (ENTag.replaceAll("\\?", "").trim().length()==0) {
+								ENTag="";
+								hasEnglishTag=false;
+							}
+							boolean tagSubmitted=false;
+							String insertedTag="";
+							if (hasEnglishTag && ENTag.length()>0) {
+								insertedTag = ENTag;
+								tagSubmitted=true;
+							} else 
+							if (romaji.length()>0){
+								insertedTag = romaji;
+								tagSubmitted=true;
+							}
+							
+							//insertedTag is the tag that will be used for the image.
+							insertedTag = ConvertTag(insertedTag.trim().toLowerCase());
+							
+							if (tagSubmitted) {
+								if (imageTag.tag_whitelist.size()==0 || imageTag.tag_whitelist.containsKey(insertedTag.trim().toLowerCase())) {
+									if (imageTag.taglist.containsKey(s)) {
+										List<String> tags = imageTag.taglist.get(s);
+										tags.add(insertedTag);
+										imageTag.taglist.put(s, tags);
+									} else {
+										List<String> tags = new ArrayList<String>();
+										tags.add(insertedTag);
+										imageTag.taglist.put(s,tags);
+									}
+									if (imageTag.tagCounter.containsKey(insertedTag)) {
+										imageTag.tagCounter.put(insertedTag,imageTag.tagCounter.get(insertedTag)+1);
+									} else {
+										imageTag.tagCounter.put(insertedTag,1);
+									}
+								}
+							}
+						}
+						String taglist = s+": <"+imageTag.taglist.get(s)+">";
+						//System.out.println(taglist);
+						bwOutput.append(taglist);
+						bwOutput.newLine();
+						//jsonData.getJSONObject("preload").getJSONObject("illust").getJSONObject(s).getJSONObject("tags");
+					}/* else {
+						System.out.println("Skipping image "+s+" because webpage cannot be found.");
+						utils.logToFile(s+"\n", "skippedItems.txt");
+					}*/
+				} else {
+					System.out.println("Skipping image "+s+" because the server couldn't find it. Will retry it later...");
+					if (addToRetryListOnFail) {
+						imageTag.pixiv_retry_list.add(s);
+					}
+					//System.out.println("Skipping image "+s+" because it has already been processed.");
+				}
+			}
+		} catch (IOException e) {
+			if (e instanceof FileNotFoundException) {
+				System.out.println("Skipping image "+s+" because webpage cannot be found.");
+				utils.logToFile(s, "skippedItems.txt");
+			} else {
+				e.printStackTrace();
+			}
+		}
+		/*org.apache.commons.io.FileUtils.copyURLToFile(new URL(
+				url
+				),temp);*/
 	}
 	
 	

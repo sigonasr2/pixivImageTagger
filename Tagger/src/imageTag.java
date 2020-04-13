@@ -26,6 +26,7 @@ public class imageTag {
 	public static Filters filters;
 	public static HashMap<String,Boolean> tag_whitelist = new HashMap<String,Boolean>();
 	public static List<String> pixiv_image_list = new ArrayList<String>();
+	public static List<String> pixiv_retry_list = new ArrayList<String>();
 	public static List<File> pixiv_rawimage_list = new ArrayList<File>();
 	public static HashMap<String,List<String>> taglist = new HashMap<String,List<String>>();
 	public static HashMap<String,String> subtaglist = new HashMap<String,String>();
