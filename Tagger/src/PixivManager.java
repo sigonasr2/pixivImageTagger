@@ -54,7 +54,7 @@ public class PixivManager {
 					imageCounter++;
 				}
 				System.out.println("Sending request to server to download "+downloadData.toString());
-				utils.downloadFileFromUrl("http://45.33.13.215/crawler/request.php?images="+downloadData.toString(), "temp_req.html");
+				utils.downloadFileFromUrl("http://45.33.13.215:8080/crawler/request.php?images="+downloadData.toString(), "temp_req.html");
 			}
 			
 			for (String s : imageTag.pixiv_image_list) {
@@ -138,7 +138,7 @@ public class PixivManager {
 
 	private void AttemptDownload(BufferedWriter bwOutput, String s, boolean addToRetryListOnFail) {
 		//String url = "https://api.proxycrawl.com/?token=ahDRaxo3KT2OOX2nQZQV9A&url=https://www.pixiv.net/en/artworks/"+s;
-		String url = "http://45.33.13.215/crawler/crawler/"+s+".html";
+		String url = "http://45.33.13.215:8080/crawler/crawler/"+s+".html";
 		try {
 			if (!new File("downloadedData/temp"+s+".html").exists()) {
 				System.out.println("Starting download of "+url+" ...");
